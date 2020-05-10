@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+- phpMyAdmin XML Dump
+- version 4.9.2
+- https://www.phpmyadmin.net
+-
+- Host: 127.0.0.1:3308
+- Tempo de geração: 08-Maio-2020 às 18:07
+- Versão do servidor: 8.0.18
+- versão do PHP: 7.4.0
+-->
+
+<pma_xml_export version="1.0" xmlns:pma="https://www.phpmyadmin.net/some_doc_url/">
+    <!--
+    - Structure schemas
+    -->
+    <pma:structure_schemas>
+        <pma:database name="bdcentral" collation="utf8mb4_0900_ai_ci" charset="utf8mb4">
+            <pma:table name="tbcargos">
+                CREATE TABLE `tbcargos` (
+                  `idCargos` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `Cargo` varchar(20) NOT NULL,
+                  PRIMARY KEY (`idCargos`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbcidades">
+                CREATE TABLE `tbcidades` (
+                  `idCidade` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `Cidade` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `UF` varchar(2) NOT NULL,
+                  PRIMARY KEY (`idCidade`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbemails">
+                CREATE TABLE `tbemails` (
+                  `idEmail` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                  `Usuario` int(10) unsigned NOT NULL,
+                  `Email` varchar(50) NOT NULL,
+                  PRIMARY KEY (`idEmail`),
+                  KEY `relUserEmail` (`Usuario`),
+                  CONSTRAINT `relUserEmail` FOREIGN KEY (`Usuario`) REFERENCES `tbusuariospf` (`idUser`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbfotografias">
+                CREATE TABLE `tbfotografias` (
+                  `idFoto` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                  `Fotografia` varchar(32) NOT NULL,
+                  PRIMARY KEY (`idFoto`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbnegociantes">
+                CREATE TABLE `tbnegociantes` (
+                  `idNegociante` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `DataRegNegociante` timestamp NOT NULL,
+                  `UserRepresentante` int(10) unsigned NOT NULL,
+                  `CargoRepresentante` int(10) unsigned NOT NULL,
+                  `RamoDeAtiv` int(10) unsigned NOT NULL,
+                  `RazaoSocial` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `CnpjEmpresa` int(14) unsigned zerofill DEFAULT NULL,
+                  `EmailEmpresa` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `CepEmpresa` int(8) unsigned zerofill NOT NULL,
+                  `EnderecoEmpresa` varchar(100) NOT NULL,
+                  `NumeroEmpresa` smallint(6) NOT NULL,
+                  `LocalizacaoEmpresa` geometry NOT NULL,
+                  `TelefoneEmpresa` int(11) unsigned zerofill NOT NULL,
+                  PRIMARY KEY (`idNegociante`),
+                  KEY `relUserComerciante` (`UserRepresentante`),
+                  KEY `relAtividadeComerciante` (`RamoDeAtiv`),
+                  KEY `relCargoComerciante` (`CargoRepresentante`),
+                  CONSTRAINT `relAtividadeComerciante` FOREIGN KEY (`RamoDeAtiv`) REFERENCES `tbramodenegocio` (`idRamoDeNegocio`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relCargoComerciante` FOREIGN KEY (`CargoRepresentante`) REFERENCES `tbcargos` (`idCargos`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relUserComerciante` FOREIGN KEY (`UserRepresentante`) REFERENCES `tbusuariospf` (`idUser`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbpedidos">
+                CREATE TABLE `tbpedidos` (
+                  `idNegocio` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `Produto` int(10) unsigned NOT NULL,
+                  `Cliente` int(10) unsigned NOT NULL,
+                  `DataDoPedido` timestamp NOT NULL,
+                  `Quantidade` smallint(5) unsigned NOT NULL,
+                  PRIMARY KEY (`idNegocio`),
+                  KEY `relClienteTransacao` (`Cliente`),
+                  KEY `relProdutoTransacao` (`Produto`),
+                  CONSTRAINT `relClienteTransacao` FOREIGN KEY (`Cliente`) REFERENCES `tbusuariospf` (`idUser`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relProdutoTransacao` FOREIGN KEY (`Produto`) REFERENCES `tbprodutosavenda` (`idProduto`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbprodutosavenda">
+                CREATE TABLE `tbprodutosavenda` (
+                  `idProduto` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `DataInclusaoProd` datetime NOT NULL,
+                  `Comerciante` int(10) unsigned NOT NULL,
+                  `Produto` int(10) unsigned NOT NULL,
+                  `Marca` varchar(30) DEFAULT NULL,
+                  `Modelo` varchar(30) DEFAULT NULL,
+                  `Especificacoes` varchar(30) DEFAULT NULL,
+                  `DescricaoProduto` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+                  `QtdeEstoque` smallint(6) unsigned NOT NULL,
+                  `ProdutoNovo` tinyint(1) DEFAULT NULL,
+                  `FotografiaProduto` int(10) unsigned DEFAULT NULL,
+                  PRIMARY KEY (`idProduto`),
+                  KEY `relComercianteProduto` (`Comerciante`),
+                  KEY `relListaProduto` (`Produto`),
+                  KEY `relFotografiaProduto` (`FotografiaProduto`),
+                  CONSTRAINT `relComercianteProduto` FOREIGN KEY (`Comerciante`) REFERENCES `tbnegociantes` (`idNegociante`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relFotografiaProduto` FOREIGN KEY (`FotografiaProduto`) REFERENCES `tbfotografias` (`idFoto`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relListaProduto` FOREIGN KEY (`Produto`) REFERENCES `tbtabeladeprodutos` (`idNomeProdServ`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbramodenegocio">
+                CREATE TABLE `tbramodenegocio` (
+                  `idRamoDeNegocio` int(10) unsigned zerofill NOT NULL AUTO_INCREMENT,
+                  `NomeRamoDeNegocio` varchar(30) NOT NULL,
+                  PRIMARY KEY (`idRamoDeNegocio`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbservicosdisponiveis">
+                CREATE TABLE `tbservicosdisponiveis` (
+                  `idServico` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `DataInclusaoServ` timestamp NOT NULL,
+                  `PrestadorServ` int(10) unsigned NOT NULL,
+                  `Servico` int(10) unsigned NOT NULL,
+                  `ObservacoesServ` text NOT NULL,
+                  `FotografiaServ` int(10) unsigned NOT NULL,
+                  PRIMARY KEY (`idServico`),
+                  KEY `relServico` (`Servico`),
+                  KEY `relPrestadorServico` (`PrestadorServ`),
+                  KEY `relFotografiaServico` (`FotografiaServ`),
+                  CONSTRAINT `relFotografiaServico` FOREIGN KEY (`FotografiaServ`) REFERENCES `tbfotografias` (`idFoto`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relPrestadorServico` FOREIGN KEY (`PrestadorServ`) REFERENCES `tbnegociantes` (`idNegociante`) ON DELETE RESTRICT ON UPDATE RESTRICT,
+                  CONSTRAINT `relServico` FOREIGN KEY (`Servico`) REFERENCES `tbtabeladeservicos` (`idServico`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbtabeladeprodutos">
+                CREATE TABLE `tbtabeladeprodutos` (
+                  `idNomeProdServ` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `TipoDeProduto` int(10) unsigned NOT NULL,
+                  `NomeProduto` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  PRIMARY KEY (`idNomeProdServ`),
+                  KEY `relTipoProduto` (`TipoDeProduto`),
+                  CONSTRAINT `relTipoProduto` FOREIGN KEY (`TipoDeProduto`) REFERENCES `tbtiposdeprodutos` (`idTipoDeProduto`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbtabeladeservicos">
+                CREATE TABLE `tbtabeladeservicos` (
+                  `idServico` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `TipoDeServico` int(10) unsigned NOT NULL,
+                  `Servico` varchar(30) NOT NULL,
+                  PRIMARY KEY (`idServico`),
+                  KEY `relTipoServico` (`TipoDeServico`),
+                  CONSTRAINT `relTipoServico` FOREIGN KEY (`TipoDeServico`) REFERENCES `tbtiposdeservicos` (`idTipoDeServico`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbtelefones">
+                CREATE TABLE `tbtelefones` (
+                  `idTelefone` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                  `Usuario` int(10) unsigned NOT NULL,
+                  `Telefone` int(10) unsigned zerofill NOT NULL,
+                  PRIMARY KEY (`idTelefone`),
+                  KEY `relUserTelefone` (`Usuario`),
+                  CONSTRAINT `relUserTelefone` FOREIGN KEY (`Usuario`) REFERENCES `tbusuariospf` (`idUser`) ON DELETE RESTRICT ON UPDATE RESTRICT
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbtiposdeprodutos">
+                CREATE TABLE `tbtiposdeprodutos` (
+                  `idTipoDeProduto` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `TipoDeProduto` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  PRIMARY KEY (`idTipoDeProduto`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbtiposdeservicos">
+                CREATE TABLE `tbtiposdeservicos` (
+                  `idTipoDeServico` int(10) unsigned NOT NULL AUTO_INCREMENT,
+                  `TipoDeServico` varchar(30) NOT NULL,
+                  PRIMARY KEY (`idTipoDeServico`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+            <pma:table name="tbusuariospf">
+                CREATE TABLE `tbusuariospf` (
+                  `idUser` int(11) unsigned NOT NULL AUTO_INCREMENT,
+                  `DataRegistro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                  `NomeLoginUser` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `NomeCompletoUser` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `CpfUser` bigint(11) unsigned zerofill NOT NULL,
+                  `DataNascUser` date NOT NULL,
+                  `EmailPrincipalUser` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `TelefoneUser` bigint(11) unsigned NOT NULL,
+                  `CepUser` int(8) unsigned zerofill NOT NULL,
+                  `UFUser` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `CidadeUser` varchar(30) NOT NULL,
+                  `LogradouroEndUser` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `NumEndUser` varchar(6) DEFAULT NULL,
+                  `ComplEndUser` varchar(20) DEFAULT NULL,
+                  `LocalizacaoUser` geometry DEFAULT NULL,
+                  `SenhaUser` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                  `LoggedIn` tinyint(1) DEFAULT NULL,
+                  `UltimoLoginUser` timestamp NULL DEFAULT NULL,
+                  PRIMARY KEY (`idUser`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+            </pma:table>
+        </pma:database>
+    </pma:structure_schemas>
+
+    <!--
+    - Banco de dados: 'bdcentral'
+    -->
+    <database name="bdcentral">
+        <!-- Tabela tbcargos -->
+        <!-- Tabela tbcidades -->
+        <!-- Tabela tbemails -->
+        <!-- Tabela tbfotografias -->
+        <!-- Tabela tbnegociantes -->
+        <!-- Tabela tbpedidos -->
+        <!-- Tabela tbprodutosavenda -->
+        <!-- Tabela tbramodenegocio -->
+        <!-- Tabela tbservicosdisponiveis -->
+        <!-- Tabela tbtabeladeprodutos -->
+        <!-- Tabela tbtabeladeservicos -->
+        <!-- Tabela tbtelefones -->
+        <!-- Tabela tbtiposdeprodutos -->
+        <!-- Tabela tbtiposdeservicos -->
+        <!-- Tabela tbusuariospf -->
+        <table name="tbusuariospf">
+            <column name="idUser">1</column>
+            <column name="DataRegistro">2020-05-08 14:29:51</column>
+            <column name="NomeLoginUser"></column>
+            <column name="NomeCompletoUser">fabio</column>
+            <column name="CpfUser">31803672889</column>
+            <column name="DataNascUser">2001-01-01</column>
+            <column name="EmailPrincipalUser">fabio.martins.01@hotmail.com</column>
+            <column name="TelefoneUser">1156607202</column>
+            <column name="CepUser">04807040</column>
+            <column name="UFUser">SP</column>
+            <column name="CidadeUser">São Paulo</column>
+            <column name="LogradouroEndUser">Rua Mataripe</column>
+            <column name="NumEndUser">592</column>
+            <column name="ComplEndUser"></column>
+            <column name="LocalizacaoUser">NULL</column>
+            <column name="SenhaUser">d32129481a7f1fc4cb052f698e8792ca96477fc1</column>
+            <column name="LoggedIn">NULL</column>
+            <column name="UltimoLoginUser">NULL</column>
+        </table>
+    </database>
+</pma_xml_export>
